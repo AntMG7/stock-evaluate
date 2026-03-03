@@ -97,23 +97,28 @@ if ticker_symbol:
         else:
             st.error("Ticker data not found.")
 
-# --- DOWNLOAD REPORT SECTION ---
-st.markdown("---")
-st.subheader("📥 Export Statistical Data")
+# --- IMPORTANT: Ensure this is INSIDE the "if ticker_symbol:" block ---
+if ticker_symbol:
+    # ... your existing data, technicals, and Monte Carlo code ...
+    
+    # --- ADD THIS AT THE VERY END OF THE TICKER BLOCK ---
+    st.markdown("---")
+    st.subheader("📥 Export Statistical Data")
 
-# Create a DataFrame of the final Monte Carlo results
-report_df = pd.DataFrame({
-    "Simulation_ID": range(n_simulations),
-    "Final_Price_Estimate": final_prices
-})
+    # Create the report DataFrame using existing variables
+    report_df = pd.DataFrame({
+        "Simulation_ID": range(n_simulations),
+        "Final_Price_Estimate": final_prices
+    })
 
-# Add summary statistics as a header or separate rows if desired
-csv = report_df.to_csv(index=False).encode('utf-8')
+    # Convert to CSV
+    csv_data = report_df.to_csv(index=False).encode('utf-8')
 
-st.download_button(
-    label="Download Simulation Results (CSV)",
-    data=csv,
-    file_name=f"{ticker_symbol}_monte_carlo_results.csv",
-    mime="text/csv",
-    help="Click to download the raw price projections from the 1,000 simulations."
-)
+    st.download_button(
+        label="Download Simulation Results (CSV)",
+        data=csv_data,
+        file_name=f"{ticker_symbol}_monte_carlo_results.csv",
+        mime="text/csv",
+        help="Download the raw price projections from the simulations."
+    )
+# --- END of ticker_symbol block ---
