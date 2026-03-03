@@ -93,7 +93,36 @@ if ticker_symbol:
                 st.pyplot(fig_sim)
                 
                 final = sims[-1, :]
-                st.write(f"**95% Confidence Interval:** ${np.percentile(final, 2.5):.2f} - ${np.percentile(final, 97.5):.2f}")
+                low_ci, high_ci = np.percentile(final, 2.5), np.percentile(final, 97.5)
+                st.write(f"**95% Confidence Interval:** ${low_ci:.2f} - ${high_ci:.2f}")
+
+            # --- EXPORT SECTION ---
+            st.markdown("---")
+            st.subheader("📥 Export Statistical Data")
+            
+            # Gather all relevant metrics into a single row for the CSV
+            export_data = {
+                "Ticker": ticker_symbol,
+                "Current Price": current_price,
+                "Annual Sharpe": sharpe,
+                "RSI_14d": rsi,
+                "Annual Volatility": volatility_ann,
+                "EMA_200": ema_200.iloc[-1],
+                "Exp_Price_Mean": np.mean(final),
+                "95%_CI_Lower": low_ci,
+                "95%_CI_Upper": high_ci
+            }
+            
+            report_df = pd.DataFrame([export_data])
+            csv_export = report_df.to_csv(index=False).encode('utf-8')
+
+            st.download_button(
+                label=f"Download {ticker_symbol} Analysis (CSV)",
+                data=csv_export,
+                file_name=f"{ticker_symbol}_quant_report.csv",
+                mime="text/csv",
+                help="Click to download the summary of all quantitative metrics and forecast boundaries."
+            )
+
         else:
             st.error("Ticker data not found.")
-
