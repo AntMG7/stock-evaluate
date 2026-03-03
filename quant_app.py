@@ -6,12 +6,24 @@ import matplotlib.pyplot as plt
 
 # 1. Page Configuration
 st.set_page_config(page_title="Advanced Quant Analyst", layout="wide")
+
+# Custom CSS for smaller business description font
+st.markdown("""
+    <style>
+    .small-font {
+        font-size:14px !important;
+        line-height: 1.4;
+        color: #555;
+    }
+    </style>
+    """, unsafe_base64=True)
+
 st.title("🔬 Deep-Dive Financial Analysis")
 st.markdown("---")
 
 # 2. Sidebar Input
 st.sidebar.header("Analysis Parameters")
-ticker_symbol = st.sidebar.text_input("Enter Ticker Symbol:", value="NVDA").upper()
+ticker_symbol = st.sidebar.text_input("Enter Ticker Symbol:", value="AAPL").upper()
 n_days = st.sidebar.slider("Forecast Horizon (Days)", 5, 90, 30)
 
 if ticker_symbol:
@@ -73,6 +85,14 @@ if ticker_symbol:
                 ax_price.plot(close_prices, label='Price', color='black', linewidth=1)
                 ax_price.plot(ema_50, label='50-day EMA', color='blue', linestyle='--')
                 ax_price.plot(ema_200, label='200-day EMA', color='red')
+
+                # ADDING VERTICAL MARKERS
+                # Highlight the most recent price point
+                ax_price.axvline(x=close_prices.index[-1], color='green', linestyle=':', label='Current Date')
+                # Optional: Highlight 3 months ago to show recent trend shift
+                three_months_ago = close_prices.index[-63] if len(close_prices) > 63 else close_prices.index[0]
+                ax_price.axvline(x=three_months_ago, color='gray', linestyle='--', alpha=0.5, label='3M Baseline')
+                
                 ax_price.set_ylabel("USD ($)")
                 ax_price.legend()
                 st.pyplot(fig_price)
@@ -88,6 +108,10 @@ if ticker_symbol:
                 fig_sim, ax_sim = plt.subplots(figsize=(10, 6))
                 ax_sim.plot(sims, color='royalblue', alpha=0.02)
                 ax_sim.plot(np.mean(sims, axis=1), color='black', label='Mean Projection')
+
+                # VERTICAL MARKER for forecast milestones (e.g., halfway point)
+                ax_sim.axvline(x=n_days//2, color='orange', linestyle='--', label='Midpoint')
+                
                 ax_sim.set_ylabel("Price ($)")
                 ax_sim.legend()
                 st.pyplot(fig_sim)
